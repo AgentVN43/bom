@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { CommonEntity } from './common.entity';
+import { ProductDetail } from './product-detail.entity';
 
 @Entity('categories')
 export class Category extends CommonEntity {
@@ -18,4 +19,8 @@ export class Category extends CommonEntity {
   /** Detailed description of the category */
   @Column({ type: 'text', nullable: true })
   description: string;
+
+  /** Product details in this category */
+  @OneToMany(() => ProductDetail, (productDetail) => productDetail.category)
+  productDetails: ProductDetail[];
 }

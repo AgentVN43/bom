@@ -35,7 +35,7 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findOne({
         where: { category_id: id },
-        relations: ['materials'],
+        relations: ['productDetails'],
       });
 
       if (!category) {
@@ -57,7 +57,7 @@ export class CategoryService {
   async findAll(): Promise<Category[]> {
     try {
       return await this.categoryRepository.find({
-        relations: ['materials'],
+        relations: ['productDetails'],
       });
     } catch (error) {
       console.log('Error fetching categories:', error);

@@ -8,46 +8,47 @@ import {
 import { CommonEntity } from './common.entity';
 import { Product } from './product.entity';
 import { Material } from './material.entity';
-import { Category } from './category.entity';
+import { Category } from './category.entity'; // Import Category entity
 
 @Entity('product_detail')
 export class ProductDetail extends CommonEntity {
-  /** Unique identifier for the product detail */
   @PrimaryGeneratedColumn('uuid')
   product_detail_id: string;
 
-  /** Product ID reference */
-  @Column({ name: 'product_id' })
-  product_id: string;
+  @Column({ type: 'varchar', length: 36 })
+  product_id: string; // FK to products.product_id
 
-  /** Product relationship */
-  @ManyToOne(() => Product, (product: Product) => product.details)
+  @Column({ type: 'varchar', length: 36 })
+  material_id: string; // This column will store ID from either materials or products
+
+  // NEW: This field is NOT in the database, but we add it to the entity
+  // to help with TypeORM's mapping and application logic.
+  // It will be transient or handled manually in service.
+  // @Column({ type: 'varchar', length: 50, nullable: false })
+  // component_item_type: string; // This column is NOT in your DB schema.
+
+  @Column({ type: 'int' }) // Keep as INT based on your provided schema
+  material_quantity: number;
+
+  @Column({ type: 'decimal', precision: 20, scale: 2, nullable: true })
+  total_price: number;
+
+  @Column({ type: 'varchar', length: 36, nullable: true }) // Keep nullable: true as per your schema
+  category_id: string; // FK to categories.category_id
+
+  // Relationships (TypeORM will try to map these based on column names,
+  // but the polymorphic nature of material_id needs manual handling in service)
+  @ManyToOne(() => Product, (product) => product.details)
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  /** Material ID reference */
-  @Column({ name: 'material_id' })
-  material_id: string;
-
-  /** Material relationship */
-  @ManyToOne(() => Material)
+  // This relationship can only be to Material. If material_id stores a Product ID,
+  // TypeORM will not be able to load it directly through this relation.
+  @ManyToOne(() => Material, (material) => material.productDetails)
   @JoinColumn({ name: 'material_id' })
   material: Material;
 
-  /** Amount of material used */
-  @Column({ name: 'material_quantity', type: 'int' })
-  material_quantity: number;
-
-  /** Total price of the material */
-  @Column({ name: 'total_price', type: 'decimal', precision: 20, scale: 2 })
-  total_price: number;
-
-  /** Category ID reference */
-  @Column({ name: 'category_id' })
-  category_id: string;
-
-  /** Category relationship */
-  @ManyToOne(() => Category)
+  @ManyToOne(() => Category, (category) => category.productDetails)
   @JoinColumn({ name: 'category_id' })
   category: Category;
 }

@@ -31,6 +31,7 @@ export class MaterialService {
       const materials = createMaterialDtos.map((dto) =>
         this.materialRepository.create(dto),
       );
+      console.log('Materials to save:', materials);
       return await this.materialRepository.save(materials);
     } catch (error) {
       console.log('Error creating materials:', error);
@@ -45,7 +46,6 @@ export class MaterialService {
     try {
       const material = await this.materialRepository.findOne({
         where: { material_id: id, delete_flag: false },
-        relations: ['category'],
       });
 
       if (!material) {
