@@ -35,7 +35,8 @@ export class ProductDetailController {
     try {
       return await this.productDetailService.findAll();
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -52,14 +53,12 @@ export class ProductDetailController {
     try {
       const productDetail = await this.productDetailService.findOne(id);
       if (!productDetail) {
-        throw new HttpException(
-          'Product detail not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('Product detail not found', HttpStatus.NOT_FOUND);
       }
       return productDetail;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -83,7 +82,8 @@ export class ProductDetailController {
     try {
       return await this.productDetailService.create(createProductDetailDto);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -120,8 +120,9 @@ export class ProductDetailController {
         );
       }
       return result;
-    } catch (error: any) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -142,7 +143,8 @@ export class ProductDetailController {
     try {
       await this.productDetailService.remove(id);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

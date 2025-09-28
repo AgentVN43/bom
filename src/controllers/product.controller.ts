@@ -34,7 +34,8 @@ export class ProductController {
     try {
       return await this.productService.findAll();
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -54,7 +55,8 @@ export class ProductController {
       }
       return product;
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -69,14 +71,12 @@ export class ProductController {
     type: Product,
   })
   @ApiResponse({ status: 500, description: 'Failed to create product.' })
-  async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
-    // <-- Thay đổi kiểu dữ liệu ở đây
+  async create(@Body() product: Product): Promise<Product> {
     try {
-      // Đảm bảo ProductService.create nhận CreateProductDto và xử lý đúng
-      // Bạn có thể cần ánh xạ DTO sang Entity trong service nếu cần
-      return await this.productService.create(createProductDto as Product); // Ép kiểu tạm thời nếu service vẫn mong đợi Product
+      return await this.productService.create(product);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -95,15 +95,15 @@ export class ProductController {
   @ApiResponse({ status: 500, description: 'Failed to update product.' })
   async update(
     @Param('id') id: string,
-    @Body() updateProductDto: CreateProductDto, // <-- Thay đổi kiểu dữ liệu ở đây
+    @Body() product: Product,
   ): Promise<Product> {
     try {
-      const updatedProduct = await this.productService.update(
-        id,
-        updateProductDto as Product,
-      ); // Ép kiểu tạm thời
+      const updatedProduct = await this.productService.update(id, product);
       if (!updatedProduct) {
-        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Product not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
       return updatedProduct;
     } catch (error) {
@@ -124,7 +124,8 @@ export class ProductController {
     try {
       await this.productService.remove(id);
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
