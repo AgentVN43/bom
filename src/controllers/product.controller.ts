@@ -8,20 +8,34 @@ import {
   Param,
   HttpStatus,
   HttpException,
+  Query,
+  BadRequestException,
+  ParseUUIDPipe,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { ProductService } from '../services/product.service';
+import { ProductDetailService } from '../services/product-detail.service';
 import { Product } from '../entities/product.entity';
 import { CreateProductDto } from '../dto/create-product.dto'; // Import your DTO
+import { FlattenedBomLineDto } from '../dto/flattened-bom-line.dto';
 import {
   ApiOperation,
   ApiCreatedResponse,
   ApiBody,
   ApiResponse,
+  ApiParam,
+  ApiQuery,
+  ApiOkResponse,
+  ApiBadRequestResponse,
 } from '@nestjs/swagger'; // Import Swagger decorators
 
 @Controller('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly productDetailService: ProductDetailService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all products' })
@@ -100,10 +114,7 @@ export class ProductController {
     try {
       const updatedProduct = await this.productService.update(id, product);
       if (!updatedProduct) {
-        throw new HttpException(
-          'Product not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
       }
       return updatedProduct;
     } catch (error) {
@@ -127,5 +138,40 @@ export class ProductController {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new HttpException(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+  @Get(':id/bom/flat')
+  @ApiOperation({
+    summary: 'Get flattened multi-level BOM for a product',
+    description:
+      'Trả về danh sách BOM đã gộp tất cả nguyên liệu cuối cùng (material), bao gồm cả BOM nhiều cấp.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'Product ID',
+    example: '5248f715-6bee-490a-b4f6-b2f8c59e3a66',
+  })
+  @ApiQuery({
+    name: 'qty',
+    type: Number,
+    required: false,
+    example: 2,
+    description: 'Số lượng sản phẩm cần tính BOM. Mặc định = 1.',
+  })
+  @ApiOkResponse({
+    description: 'Flattened BOM lines',
+    type: FlattenedBomLineDto,
+    isArray: true,
+  })
+  @ApiBadRequestResponse({ description: 'Invalid quantity or invalid UUID' })
+  async getProductFlattenedBom(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query('qty', new DefaultValuePipe(1), ParseIntPipe) qty: number,
+  ): Promise<FlattenedBomLineDto[]> {
+    if (qty <= 0) {
+      throw new BadRequestException('qty must be greater than 0');
+    }
+
+    return this.productDetailService.getFlattenedBom(id, qty);
   }
 }

@@ -68,7 +68,7 @@ export class MaterialService {
     try {
       return await this.materialRepository.find({
         where: { delete_flag: false },
-        relations: ['category'],
+        relations: ['productDetails', 'inventories'],
       });
     } catch (error) {
       console.log('Error fetching materials:', error);

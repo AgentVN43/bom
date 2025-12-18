@@ -10,8 +10,8 @@ import {
 
 // Enum để định nghĩa rõ các loại component_item_type
 export enum ComponentItemType {
-  MATERIAL = 'material',
-  PRODUCT = 'product', // Đây là bán thành phẩm tự làm
+  MATERIAL = 'MATERIAL',
+  PRODUCT = 'PRODUCT',
 }
 
 export class CreateProductDetailDto {
