@@ -53,7 +53,10 @@ export class ProductDetailController {
     try {
       const productDetail = await this.productDetailService.findOne(id);
       if (!productDetail) {
-        throw new HttpException('Product detail not found', HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          'Product detail not found',
+          HttpStatus.NOT_FOUND,
+        );
       }
       return productDetail;
     } catch (error) {

@@ -558,29 +558,43 @@ export class ProductDetailService {
     }
   }
 
+  // async remove(id: string): Promise<void> {
+  //   try {
+  //     const productDetail = await this.findOne(id);
+  //     if (!productDetail) {
+  //       throw new HttpException(
+  //         'Product detail not found',
+  //         HttpStatus.NOT_FOUND,
+  //       );
+  //     }
+
+  //     productDetail.delete_flag = true;
+  //     productDetail.updated_time = new Date();
+
+  //     await this.productDetailRepository.save(productDetail);
+  //   } catch (error) {
+  //     console.error('Error removing product detail:', error);
+  //     if (error instanceof HttpException) throw error;
+
+  //     throw new HttpException(
+  //       'Failed to remove product detail',
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     );
+  //   }
+  // }
+
   async remove(id: string): Promise<void> {
-    try {
-      const productDetail = await this.findOne(id);
-      if (!productDetail) {
-        throw new HttpException(
-          'Product detail not found',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      productDetail.delete_flag = true;
-      productDetail.updated_time = new Date();
-
-      await this.productDetailRepository.save(productDetail);
-    } catch (error) {
-      console.error('Error removing product detail:', error);
-      if (error instanceof HttpException) throw error;
-
-      throw new HttpException(
-        'Failed to remove product detail',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+    const detail = await this.productDetailRepository.findOne({
+      where: { product_detail_id: id },
+    });
+    if (!detail) {
+      throw new HttpException('Product detail not found', HttpStatus.NOT_FOUND);
     }
+
+    await this.productDetailRepository.update(detail.product_detail_id, {
+      delete_flag: true,
+      updated_time: new Date(),
+    });
   }
 
   /**
